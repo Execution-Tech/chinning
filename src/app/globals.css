@@ -1,0 +1,50 @@
+@import "tailwindcss";
+/* fonts.googleapis.co
+:root {
+  --primary: #1b3a6b;
+  --primary-light: #2563eb;
+  --primary-bg: #eef4ff;
+  --accent: #3b82f6;
+  --background: #f0f4ff;
+  --foreground: #1f2937;
+  --card: #ffffff;
+  --border: #d1d5db;
+  --muted: #6b7280;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: "Cairo", Arial, sans-serif;
+  direction: rtl;
+}
+
+/* Stripe pattern background */
+.stripe-bg {
+  background-image: repeating-linear-gradient(
+    90deg,
+    transparent,
+    transparent 40px,
+    rgba(59, 130, 246, 0.04) 40px,
+    rgba(59, 130, 246, 0.04) 41px
+  );
+}
+
+/* Swiper overrides */
+.swiper-button-next,
+.swiper-button-prev {
+  color: #1b3a6b !important;
+}
+
+.swiper-pagination-bullet-active {
+  background: #1b3a6b !important;
+}
