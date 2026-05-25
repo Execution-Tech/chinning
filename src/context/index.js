@@ -6,6 +6,7 @@ import React, { createContext, useContext, useReducer, useEffect } from "react";
 // Import individual contexts
 import { AuthProvider } from "./AuthContext";
 import { CartProvider } from "./CartContext";
+import { FavoritesProvider } from "./FavoritesContext";
 // import { ThemeProvider } from './ThemeContext';
 // import { CartProvider } from './CartContext';
 // import { NotificationProvider } from './NotificationContext';
@@ -79,15 +80,9 @@ export function AppProvider({ children }) {
     <AppContext.Provider value={value}>
       <AuthProvider>
         <CartProvider>
-          {/* <NotificationProvider>
-          <ThemeProvider>
-            <UserPrefsProvider>
-              <CartProvider> */}
+          <FavoritesProvider>
           {children}
-          {/* </CartProvider>
-            </UserPrefsProvider>
-          </ThemeProvider>
-          </NotificationProvider> */}
+          </FavoritesProvider>
         </CartProvider>
       </AuthProvider>
     </AppContext.Provider>
