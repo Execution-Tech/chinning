@@ -9,6 +9,7 @@ export default function SearchFilters({
   maxPrice,
   setMaxPrice,
   handleFilterChange,
+  setSelectedColors,
 }: {
   selectedBrands: string[];
   setSelectedBrands: React.Dispatch<React.SetStateAction<string[]>>;
@@ -17,6 +18,8 @@ export default function SearchFilters({
   maxPrice: string;
   setMaxPrice: React.Dispatch<React.SetStateAction<string>>;
   handleFilterChange: () => void;
+  selectedColors?: string[];
+  setSelectedColors?: React.Dispatch<React.SetStateAction<string[]>>;
 }) {
   const handleBrandChange = (brandId: string) => {
     setSelectedBrands((prev) =>
@@ -28,6 +31,7 @@ export default function SearchFilters({
     setSelectedBrands([]);
     setMinPrice("");
     setMaxPrice("");
+    setSelectedColors?.([]);
   };
 
   return (
