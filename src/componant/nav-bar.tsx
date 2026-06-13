@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import SignInModal from "./sign-in";
 import { useAuth } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
@@ -23,16 +23,65 @@ const ChinningLogo = () => (
   </div>
 );
 
+const LocationPinIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-4 h-4 flex-shrink-0">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+  </svg>
+);
+
+const ChevronDownIcon = ({ className = "w-3 h-3" }: { className?: string }) => (
+  <svg xmlns="http://www.w3.org/2000/svg" className={className} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+  </svg>
+);
+
+const ReturnsIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75V16.5M16.5 12 12 16.5 7.5 12M12 16.5V3" />
+  </svg>
+);
+
+const HeartIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" />
+  </svg>
+);
+
+const OrdersIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M20.25 7.5l-.625 10.632a2.25 2.25 0 0 1-2.247 2.118H6.622a2.25 2.25 0 0 1-2.247-2.118L3.75 7.5M10 11.25h4M3.375 7.5h17.25c.621 0 1.125-.504 1.125-1.125v-1.5c0-.621-.504-1.125-1.125-1.125H3.375C2.754 3.75 2.25 4.254 2.25 4.875v1.5c0 .621.504 1.125 1.125 1.125Z" />
+  </svg>
+);
+
+const AddressIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+    <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+  </svg>
+);
+
+const PaymentIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h3M3.375 19.5h17.25c.621 0 1.125-.504 1.125-1.125V5.625c0-.621-.504-1.125-1.125-1.125H3.375c-.621 0-1.125.504-1.125 1.125v12.75c0 .621.504 1.125 1.125 1.125Z" />
+  </svg>
+);
+
+const LogoutIcon = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-5 h-5">
+    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15M12 9l3 3m0 0-3 3m3-3H3" />
+  </svg>
+);
+
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [isSignInModalOpen, setIsSignInModalOpen] = useState(false);
-  const [isCategoriesOpen, setIsCategoriesOpen] = useState(false);
   const [isProfileOpen, setIsProfileOpen] = useState(false);
 
-  const dropdownRef = useRef<HTMLDivElement>(null);
   const profileDropdownRef = useRef<HTMLDivElement>(null);
   const searchParams = useSearchParams();
+  const pathname = usePathname();
   const signIn = searchParams.get("signIn");
   const router = useRouter();
   const { isAuthenticated, user, logout } = useAuth();
@@ -40,6 +89,12 @@ const Navbar = () => {
 
   const cartCount = items.reduce((sum: number, item: any) => sum + item.quantity, 0);
   const locale = getLocale();
+  const displayName = user?.name || "أحمد محمد";
+  const initials = displayName
+    .split(" ")
+    .map((part: string) => part.charAt(0))
+    .slice(0, 2)
+    .join("");
 
   useEffect(() => {
     if (signIn === "true" && !isSignInModalOpen) {
@@ -52,11 +107,15 @@ const Navbar = () => {
     router.push(`/${locale}/search?name=${searchQuery}`);
   };
 
+  const toggleLocale = () => {
+    const nextLocale = locale === "ar" ? "en" : "ar";
+    const segments = pathname.split("/");
+    segments[1] = nextLocale;
+    router.push(segments.join("/") || "/");
+  };
+
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setIsCategoriesOpen(false);
-      }
       if (profileDropdownRef.current && !profileDropdownRef.current.contains(event.target as Node)) {
         setIsProfileOpen(false);
       }
@@ -69,7 +128,7 @@ const Navbar = () => {
     <>
       {/* Announcement bar */}
       <div className="bg-[#1B3A6B] text-white text-center text-sm py-2 px-4">
-        🔥 عروض حصرية على أحدث المنتجات — شحن مجاني للطلبات فوق 500 جنيه
+        🔥شحن مجاني على جميع الطلبات فوق 500 ج.م – ينتهي العرض اليوم
       </div>
 
       {/* Main navbar */}
@@ -77,41 +136,20 @@ const Navbar = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16 gap-4">
 
-            {/* Right: Logo + Categories (RTL = right side) */}
+            {/* Right: Logo + Location (RTL = right side) */}
             <div className="flex items-center gap-6">
               <Link href={`/${locale}`}>
                 <ChinningLogo />
               </Link>
 
-              <div className="relative hidden md:block" ref={dropdownRef}>
-                <button
-                  onClick={() => setIsCategoriesOpen(!isCategoriesOpen)}
-                  className="flex items-center gap-1.5 text-gray-700 hover:text-[#1B3A6B] font-medium text-sm transition-colors"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
-                  </svg>
-                  التصنيفات
-                  <svg xmlns="http://www.w3.org/2000/svg" className={`w-3 h-3 transition-transform ${isCategoriesOpen ? "rotate-180" : ""}`} fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
-                  </svg>
-                </button>
-
-                {isCategoriesOpen && (
-                  <div className="absolute top-full right-0 mt-2 bg-white shadow-xl rounded-xl border border-gray-100 w-52 z-50 py-2">
-                    {categories.map((category) => (
-                      <Link
-                        key={category.id}
-                        href={`/${locale}/search?category_id=${category.id}`}
-                        onClick={() => setIsCategoriesOpen(false)}
-                        className="flex items-center gap-3 px-4 py-2.5 text-gray-700 hover:bg-blue-50 hover:text-[#1B3A6B] text-sm transition-colors"
-                      >
-                        {category.name}
-                      </Link>
-                    ))}
-                  </div>
-                )}
-              </div>
+              <button
+                onClick={() => router.push(`/${locale}/profile`)}
+                className="hidden lg:flex items-center gap-1.5 text-gray-700 hover:text-[#1B3A6B] text-sm transition-colors max-w-[220px]"
+              >
+                <LocationPinIcon />
+                <span className="truncate">4 شارع طلعت حرب، وسط البلد، القاهرة</span>
+                <ChevronDownIcon />
+              </button>
             </div>
 
             {/* Center: Search */}
@@ -138,24 +176,39 @@ const Navbar = () => {
 
             {/* Left: Actions (RTL = left side) */}
             <div className="flex items-center gap-3">
+              {/* Language switcher */}
+              <button
+                onClick={toggleLocale}
+                className="hidden md:flex items-center gap-1.5 text-gray-600 hover:text-[#1B3A6B] text-sm font-medium transition-colors px-2 py-1.5 rounded-lg hover:bg-gray-50"
+              >
+                <span>{locale === "ar" ? "🇬🇧" : "🇪🇬"}</span>
+                {locale === "ar" ? "En" : "Ar"}
+              </button>
+
               {/* Cart */}
-              <Link href={`/${locale}/shopping-carts`} className="relative p-2 text-gray-600 hover:text-[#1B3A6B] transition-colors">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
-                </svg>
-                {cartCount > 0 && (
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px]">
-                    {cartCount}
-                  </span>
-                )}
+              <Link href={`/${locale}/shopping-carts`} className="relative flex items-center gap-2 p-2 text-gray-600 hover:text-[#1B3A6B] transition-colors">
+                <span className="relative">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 0 0-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+                  </svg>
+                  {cartCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center font-bold text-[10px]">
+                      {cartCount}
+                    </span>
+                  )}
+                </span>
+                <span className="hidden lg:block text-sm font-medium">عربة التسوق</span>
               </Link>
 
               {/* Notifications */}
-              <button className="relative p-2 text-gray-600 hover:text-[#1B3A6B] transition-colors hidden md:block">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
-                </svg>
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              <button className="relative hidden md:flex items-center gap-2 p-2 text-gray-600 hover:text-[#1B3A6B] transition-colors">
+                <span className="relative">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M14.857 17.082a23.848 23.848 0 0 0 5.454-1.31A8.967 8.967 0 0 1 18 9.75V9A6 6 0 0 0 6 9v.75a8.967 8.967 0 0 1-2.312 6.022c1.733.64 3.56 1.085 5.455 1.31m5.714 0a24.255 24.255 0 0 1-5.714 0m5.714 0a3 3 0 1 1-5.714 0" />
+                  </svg>
+                  <span className="absolute top-0.5 right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
+                </span>
+                <span className="hidden lg:block text-sm font-medium">الإشعارات</span>
               </button>
 
               {/* Profile */}
@@ -165,21 +218,40 @@ const Navbar = () => {
                     onClick={() => setIsProfileOpen(!isProfileOpen)}
                     className="flex items-center gap-2 text-sm font-medium text-gray-700 hover:text-[#1B3A6B] transition-colors"
                   >
-                    <div className="w-8 h-8 rounded-full bg-[#1B3A6B] text-white flex items-center justify-center text-sm font-bold">
-                      {user?.name?.charAt(0) || "U"}
+                    <div className="w-9 h-9 rounded-full bg-[#1B3A6B] text-white flex items-center justify-center text-sm font-bold">
+                      {initials}
                     </div>
-                    <span className="hidden lg:block">{user?.name}</span>
+                    <ChevronDownIcon className={`w-3 h-3 transition-transform ${isProfileOpen ? "rotate-180" : ""}`} />
                   </button>
                   {isProfileOpen && (
-                    <div className="absolute top-full left-0 mt-2 bg-white shadow-xl rounded-xl border border-gray-100 w-44 z-50 py-2">
-                      <Link href={`/${locale}/profile`} onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#1B3A6B]">
-                        الملف الشخصي
+                    <div className="absolute top-full left-0 mt-2 bg-white shadow-xl rounded-xl border border-gray-100 w-60 z-50 py-2">
+                      <div className="px-4 py-3 border-b border-gray-100">
+                        <p className="font-bold text-gray-800 text-sm">{displayName}</p>
+                        <p className="text-xs text-gray-400 mt-0.5">ملفي الشخصي</p>
+                      </div>
+                      <Link href={`/${locale}/profile/orders`} onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#1B3A6B]">
+                        <ReturnsIcon />
+                        المرتجعات
                       </Link>
-                      <Link href={`/${locale}/shopping-carts`} onClick={() => setIsProfileOpen(false)} className="flex items-center gap-2 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#1B3A6B]">
-                        طلباتي
+                      <Link href={`/${locale}/profile/favorites`} onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#1B3A6B]">
+                        <HeartIcon />
+                        المفضلة
+                      </Link>
+                      <Link href={`/${locale}/profile/orders`} onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#1B3A6B]">
+                        <OrdersIcon />
+                        الطلبات
+                      </Link>
+                      <Link href={`/${locale}/profile`} onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#1B3A6B]">
+                        <AddressIcon />
+                        العناوين
+                      </Link>
+                      <Link href={`/${locale}/profile`} onClick={() => setIsProfileOpen(false)} className="flex items-center gap-3 px-4 py-2.5 text-sm text-gray-700 hover:bg-blue-50 hover:text-[#1B3A6B]">
+                        <PaymentIcon />
+                        الدفع
                       </Link>
                       <hr className="my-1" />
-                      <button onClick={() => { logout(); setIsProfileOpen(false); }} className="w-full text-right flex items-center gap-2 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
+                      <button onClick={() => { logout(); setIsProfileOpen(false); }} className="w-full text-right flex items-center gap-3 px-4 py-2.5 text-sm text-red-600 hover:bg-red-50">
+                        <LogoutIcon />
                         تسجيل الخروج
                       </button>
                     </div>
