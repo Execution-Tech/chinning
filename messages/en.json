@@ -82,7 +82,20 @@
     "shop": "shop"
   },
   "Notifications": {
-    "noNotifications": "No notifications yet"
+    "title": "Notifications",
+    "home": "Home",
+    "all": "All",
+    "offers": "Offers",
+    "payments": "Payments",
+    "orders": "Orders",
+    "order": "Order",
+    "viewOrder": "View order",
+    "noNotifications": "No notifications yet",
+    "justNow": "Just now",
+    "minutesAgo": "{count}m ago",
+    "hoursAgo": "{count}h ago",
+    "daysAgo": "{count}d ago",
+    "monthsAgo": "{count}mo ago"
   },
   "Cart": {
     "title": "Shopping Cart",

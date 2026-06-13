@@ -82,7 +82,20 @@
     "shop": "تسوق"
   },
   "Notifications": {
-    "noNotifications": "لا توجد إشعارات حتى الآن"
+    "title": "الإشعارات",
+    "home": "الرئيسية",
+    "all": "الكل",
+    "offers": "العروض",
+    "payments": "المدفوعات",
+    "orders": "الطلبات",
+    "order": "طلب",
+    "viewOrder": "عرض الطلب",
+    "noNotifications": "لا توجد إشعارات حتى الآن",
+    "justNow": "الآن",
+    "minutesAgo": "منذ {count} دقائق",
+    "hoursAgo": "منذ {count} ساعات",
+    "daysAgo": "منذ {count} أيام",
+    "monthsAgo": "منذ {count} أشهر"
   },
   "Cart": {
     "title": "سلة التسوق",
