@@ -8,7 +8,7 @@ import { toast } from "react-toastify";
 import ecommerceAPI from "@/utils";
 
 function OtpInput({
-  length = 4,
+  length = 6,
   onComplete,
   autoFocus = true,
   disabled = false,
@@ -36,29 +36,59 @@ function OtpInput({
 
   const isDigit = (ch: string) => /\d/.test(ch);
 
-  const handleChange = (idx: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (
+    idx: number,
+    e: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     const raw = e.target.value;
     const lastChar = raw.slice(-1);
     if (lastChar && !isDigit(lastChar)) return;
-    setValues((prev) => { const next = [...prev]; next[idx] = lastChar || ""; return next; });
+    setValues((prev) => {
+      const next = [...prev];
+      next[idx] = lastChar || "";
+      return next;
+    });
     if (lastChar && idx < length - 1) inputsRef.current[idx + 1]?.focus();
   };
 
-  const handleKeyDown = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleKeyDown = (
+    idx: number,
+    e: React.KeyboardEvent<HTMLInputElement>,
+  ) => {
     if (e.key === "Backspace") {
       if (values[idx]) {
-        setValues((prev) => { const next = [...prev]; next[idx] = ""; return next; });
+        setValues((prev) => {
+          const next = [...prev];
+          next[idx] = "";
+          return next;
+        });
       } else if (idx > 0) {
         inputsRef.current[idx - 1]?.focus();
-        setValues((prev) => { const next = [...prev]; next[idx - 1] = ""; return next; });
+        setValues((prev) => {
+          const next = [...prev];
+          next[idx - 1] = "";
+          return next;
+        });
       }
     }
-    if (e.key === "ArrowLeft" && idx > 0) { e.preventDefault(); inputsRef.current[idx - 1]?.focus(); }
-    if (e.key === "ArrowRight" && idx < length - 1) { e.preventDefault(); inputsRef.current[idx + 1]?.focus(); }
+    if (e.key === "ArrowLeft" && idx > 0) {
+      e.preventDefault();
+      inputsRef.current[idx - 1]?.focus();
+    }
+    if (e.key === "ArrowRight" && idx < length - 1) {
+      e.preventDefault();
+      inputsRef.current[idx + 1]?.focus();
+    }
   };
 
-  const handlePaste = (idx: number, e: React.ClipboardEvent<HTMLInputElement>) => {
-    const digits = e.clipboardData.getData("text").replace(/\D/g, "").slice(0, length);
+  const handlePaste = (
+    idx: number,
+    e: React.ClipboardEvent<HTMLInputElement>,
+  ) => {
+    const digits = e.clipboardData
+      .getData("text")
+      .replace(/\D/g, "")
+      .slice(0, length);
     if (!digits) return;
     e.preventDefault();
     setValues((prev) => {
@@ -77,7 +107,9 @@ function OtpInput({
       {values.map((val, idx) => (
         <input
           key={idx}
-          ref={(el) => { inputsRef.current[idx] = el; }}
+          ref={(el) => {
+            inputsRef.current[idx] = el;
+          }}
           type="text"
           inputMode="numeric"
           pattern="[0-9]*"
@@ -127,7 +159,9 @@ const VerificationCodePage = () => {
       } else if (flow === "forgot-password") {
         await ecommerceAPI.auth.verifyToken(phone, code);
         toast.success("تم التحقق، أدخل كلمة المرور الجديدة");
-        router.push(`/${locale}/create-new-password?phone=${encodeURIComponent(phone)}&token=${encodeURIComponent(code)}`);
+        router.push(
+          `/${locale}/create-new-password?phone=${encodeURIComponent(phone)}&token=${encodeURIComponent(code)}`,
+        );
       }
     } catch (err: any) {
       toast.error(err?.data?.message || err?.message || "رمز التحقق غير صحيح");
@@ -150,34 +184,57 @@ const VerificationCodePage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#EEF4FF] flex items-center justify-center p-4" dir="rtl">
+    <div
+      className="min-h-screen bg-[#EEF4FF] flex items-center justify-center p-4"
+      dir="rtl"
+    >
       <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden">
-
         {/* Blue header */}
         <div className="bg-gradient-to-br from-[#1B3A6B] to-[#2563EB] px-8 pt-8 pb-10 text-center">
           <div className="flex justify-center mb-3">
             <div className="w-14 h-14 rounded-full bg-white/15 flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" strokeWidth={1.8} stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 8.25h3m-3 3h3m-3 3h3" />
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-8 h-8 text-white"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.8}
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M10.5 1.5H8.25A2.25 2.25 0 0 0 6 3.75v16.5a2.25 2.25 0 0 0 2.25 2.25h7.5A2.25 2.25 0 0 0 18 20.25V3.75a2.25 2.25 0 0 0-2.25-2.25H13.5m-3 0V3h3V1.5m-3 0h3m-3 8.25h3m-3 3h3m-3 3h3"
+                />
               </svg>
             </div>
           </div>
           <h1 className="text-white font-bold text-xl">رمز التحقق</h1>
-          <p className="text-white/70 text-sm mt-1">أدخل الرمز المرسل إلى هاتفك</p>
+          <p className="text-white/70 text-sm mt-1">
+            أدخل الرمز المرسل إلى هاتفك
+          </p>
         </div>
 
         <div className="px-8 py-6 -mt-4 bg-white rounded-t-3xl relative">
-          <h2 className="text-xl font-bold text-gray-800 mb-1">أدخل رمز التحقق</h2>
+          <h2 className="text-xl font-bold text-gray-800 mb-1">
+            أدخل رمز التحقق
+          </h2>
           <p className="text-gray-500 text-sm mb-6">
-            أرسلنا رمزاً مكوناً من 4 أرقام إلى هاتفك.
+            أرسلنا رمزاً مكوناً من 6 أرقام إلى هاتفك.
           </p>
 
           <div className="mb-8">
-            <OtpInput length={4} onComplete={handleComplete} disabled={loading} />
+            <OtpInput
+              length={6}
+              onComplete={handleComplete}
+              disabled={loading}
+            />
           </div>
 
           {loading && (
-            <p className="text-center text-sm text-[#1B3A6B] mb-4">جارٍ التحقق...</p>
+            <p className="text-center text-sm text-[#1B3A6B] mb-4">
+              جارٍ التحقق...
+            </p>
           )}
 
           <div className="text-center">
