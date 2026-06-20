@@ -53,13 +53,16 @@ export function AuthProvider({ children }) {
         ? localStorage.getItem("access_token")
         : null;
     if (!token) return;
+    ecommerceAPI.setAuthToken(token);
     try {
       const response = await ecommerceAPI.auth.getProfile();
       const user = response.data?.data || response.data?.user || response.data;
       dispatch({ type: "LOGIN_SUCCESS", payload: { user } });
-    } catch {
-      dispatch({ type: "LOGOUT_SUCCESS" });
-      ecommerceAPI.clearAuth();
+    } catch (err) {
+      if (err?.response?.status === 401) {
+        dispatch({ type: "LOGOUT_SUCCESS" });
+        ecommerceAPI.clearAuth();
+      }
     }
   };
 
@@ -76,6 +79,7 @@ export function AuthProvider({ children }) {
       const data = response.data?.data || response.data;
       const token = data?.token || data?.access_token;
       const user = data?.user || data;
+
       ecommerceAPI.setAuthToken(token);
       dispatch({ type: "LOGIN_SUCCESS", payload: { user } });
       toast.success("تم تسجيل الدخول بنجاح");

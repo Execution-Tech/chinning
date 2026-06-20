@@ -1,6 +1,5 @@
 import { getLocale } from "@/context/AuthContext";
 import axios from "axios";
-import Router from "next/router";
 
 // Create axios instance with default config
 const apiClient = axios.create({
@@ -95,41 +94,9 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Handle 401 Unauthorized - Refresh token logic
+    // Handle 401 Unauthorized
     if (error.response?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-
-      try {
-        // Attempt to refresh token
-        const refreshToken = localStorage.getItem("refresh_token");
-        if (refreshToken) {
-          const response = await axios.post(
-            `${process.env.NEXT_PUBLIC_API_URL}/auth/refresh`,
-            { refreshToken },
-          );
-
-          const { access_token, refresh_token } = response.data;
-
-          // Store new tokens
-          localStorage.setItem("access_token", access_token);
-          if (refresh_token) {
-            localStorage.setItem("refresh_token", refresh_token);
-          }
-
-          // Retry original request with new token
-          originalRequest.headers.Authorization = `Bearer ${access_token}`;
-          return apiClient(originalRequest);
-        }
-      } catch (refreshError) {
-        // Refresh failed - clear tokens and redirect to login
-        localStorage.removeItem("access_token");
-        localStorage.removeItem("refresh_token");
-        sessionStorage.removeItem("session_token");
-
-        if (typeof window !== "undefined") {
-          Router.push("/login?session_expired=true");
-        }
-      }
     }
 
     // Handle other common errors
@@ -397,9 +364,11 @@ const ecommerceAPI = {
     if (token) {
       apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
       localStorage.setItem("access_token", token);
+      document.cookie = `access_token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
     } else {
       delete apiClient.defaults.headers.common["Authorization"];
       localStorage.removeItem("access_token");
+      document.cookie = "access_token=; path=/; max-age=0";
     }
   },
 
@@ -414,8 +383,8 @@ const ecommerceAPI = {
   clearAuth: () => {
     delete apiClient.defaults.headers.common["Authorization"];
     localStorage.removeItem("access_token");
-    localStorage.removeItem("refresh_token");
     sessionStorage.removeItem("session_token");
+    document.cookie = "access_token=; path=/; max-age=0";
   },
 
   // For SSR/SSG data fetching
