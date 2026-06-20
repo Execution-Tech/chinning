@@ -2,32 +2,13 @@
 import Footer from "@/componant/footer";
 import Navbar from "@/componant/nav-bar";
 import CategoryFilters from "@/componant/category-filters";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { products as allProducts } from "@/data/products";
-import { brands, categories } from "@/data/categories";
 import { getLocale } from "@/context/AuthContext";
 import { useCart } from "@/context/CartContext";
-
-const productPrices = allProducts.map((p) => p.price);
-const PRICE_MIN = Math.floor(Math.min(...productPrices) / 1000) * 1000;
-const PRICE_MAX = Math.ceil(Math.max(...productPrices) / 1000) * 1000;
-
-const getRating = (product: (typeof allProducts)[number]) => {
-  if (product.product_review?.length) {
-    const avg =
-      product.product_review.reduce((sum, r) => sum + r.rating, 0) /
-      product.product_review.length;
-    return Math.round(avg * 10) / 10;
-  }
-  return 4.6;
-};
-
-const getOriginalPrice = (price: number) => Math.round((price * 2.4) / 10) * 10;
-const getStockLeft = (id: number) => ((id * 7) % 12) + 3;
-const isNewProduct = (id: number) => id % 3 === 0;
+import { axiosClient } from "@/utils";
 
 const StarIcon = () => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-yellow-400 text-yellow-400">
@@ -61,10 +42,9 @@ const ChevronIcon = () => (
 
 const ProductCard = ({ product, locale, router, addItem }: any) => {
   const [qty, setQty] = useState(0);
-  const rating = getRating(product);
-  const originalPrice = getOriginalPrice(product.price);
-  const stockLeft = getStockLeft(product.id);
-  const isNew = isNewProduct(product.id);
+  const rating = product.product_review?.length
+    ? Math.round((product.product_review.reduce((s: number, r: any) => s + r.rating, 0) / product.product_review.length) * 10) / 10
+    : 4.6;
 
   return (
     <div
@@ -72,20 +52,25 @@ const ProductCard = ({ product, locale, router, addItem }: any) => {
       className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-md hover:border-[#1B3A6B]/20 transition-all cursor-pointer group p-3"
     >
       <div className="relative aspect-square mb-3 bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
-        {isNew && (
-          <span className="absolute top-2 left-2 z-10 bg-emerald-500 text-white text-[10px] font-bold px-2 py-1 rounded-md">
-            جديد
-          </span>
+        {product.image_url || product.image ? (
+          <Image
+            src={product.image_url || product.image}
+            alt={product.name}
+            className="object-contain w-full h-full p-2"
+            width={220}
+            height={220}
+            unoptimized
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center bg-gray-100">
+            <svg className="h-16 w-16 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
         )}
-
-        <Image
-          src={product.image}
-          alt={product.name}
-          className="object-contain w-full h-full p-2"
-          width={220}
-          height={220}
-          unoptimized
-        />
 
         {/* Add to cart */}
         {qty > 0 ? (
@@ -130,24 +115,42 @@ const ProductCard = ({ product, locale, router, addItem }: any) => {
           <StarIcon />
           {rating.toFixed(1)}
         </span>
-        <span className="flex items-center gap-1 bg-red-50 text-red-500 text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
-          <span className="w-1.5 h-1.5 rounded-full bg-red-400" />
-          باقي {stockLeft} قطع فقط
-        </span>
+        {product.brand?.name && (
+          <span className="bg-[#EEF4FF] text-[#1B3A6B] text-[10px] font-semibold px-2 py-0.5 rounded-full whitespace-nowrap">
+            {product.brand.name}
+          </span>
+        )}
       </div>
 
       <div className="flex items-baseline gap-2">
-        <span className="text-base font-bold text-[#1B3A6B]">{product.price.toLocaleString()} ج.م</span>
-        <span className="text-xs text-gray-400 line-through">{originalPrice.toLocaleString()} ج.م</span>
+        <span className="text-base font-bold text-[#1B3A6B]">
+          {parseFloat(product.price).toLocaleString()} ج.م
+        </span>
       </div>
     </div>
   );
 };
 
+const SkeletonCard = () => (
+  <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden animate-pulse p-3">
+    <div className="aspect-square bg-gray-200 rounded-xl mb-3" />
+    <div className="h-4 bg-gray-200 rounded w-3/4 mb-2" />
+    <div className="h-3 bg-gray-100 rounded w-1/2 mb-2" />
+    <div className="h-5 bg-gray-200 rounded w-1/3 mt-2" />
+  </div>
+);
+
+const PRICE_MIN = 0;
+const PRICE_MAX = 100000;
+
 const SearchPage = () => {
   const [sortBy, setSortBy] = useState("newest");
-  const [productsList, setProducts] = useState(allProducts);
-  const [selectedBrandChip, setSelectedBrandChip] = useState("all");
+  const [productsList, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [selectedColors, setSelectedColors] = useState<string[]>([]);
@@ -155,65 +158,116 @@ const SearchPage = () => {
   const [selectedRatings, setSelectedRatings] = useState<number[]>([]);
   const [newName, setNewName] = useState("");
 
+  const [brands, setBrands] = useState<any[]>([]);
+  const [selectedBrandId, setSelectedBrandId] = useState("all");
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const locale = getLocale();
   const { addItem } = useCart();
 
-  const categoryId = searchParams.get("category_id") || "";
-  const activeCategory = categories.find((c) => String(c.id) === categoryId);
-
+  // Fetch brand list for chips
   useEffect(() => {
-    const name = searchParams.get("name") || "";
+    axiosClient.get("/brands")
+      .then((r) => setBrands(r.data?.data || []))
+      .catch(() => {});
+  }, []);
 
-    let filtered = allProducts;
+  // Fetch products from API
+  useEffect(() => {
+    setLoading(true);
+    const getAllProducts = async () => {
+      try {
+        const params = new URLSearchParams(searchParams.toString());
+        params.set("paginate", "12");
+        params.set("page", String(page));
+        const response = await axiosClient.get(`products?${params.toString()}`);
+        const productsData = response.data?.data?.data || [];
+        setProducts((prev) => page === 1 ? productsData : [...prev, ...productsData]);
+        setTotalPages(response.data?.data?.meta?.last_page || 1);
+      } catch (error) {
+        console.error("Error fetching products:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    getAllProducts();
+  }, [searchParams.toString(), page]);
 
-    if (name) {
-      filtered = filtered.filter((p) =>
-        p.name.toLowerCase().includes(name.toLowerCase())
-      );
-    }
-    if (categoryId) {
-      filtered = filtered.filter((p) => String(p.category?.id) === categoryId);
-    }
-    if (selectedBrandChip !== "all") {
-      filtered = filtered.filter((p) => p.brand?.name === selectedBrandChip);
-    }
-    if (minPrice) filtered = filtered.filter((p) => p.price >= Number(minPrice));
-    if (maxPrice) filtered = filtered.filter((p) => p.price <= Number(maxPrice));
-    if (selectedRatings.length > 0) {
-      filtered = filtered.filter((p) => selectedRatings.includes(Math.floor(getRating(p))));
-    }
+  // Reset to page 1 when search query changes
+  const searchKey = searchParams.toString();
+  useEffect(() => {
+    setPage(1);
+  }, [searchKey]);
 
-    filtered = [...filtered];
-    if (sortBy === "price-low") filtered.sort((a, b) => a.price - b.price);
-    if (sortBy === "price-high") filtered.sort((a, b) => b.price - a.price);
-    if (sortBy === "rating") filtered.sort((a, b) => getRating(b) - getRating(a));
-    if (sortBy === "newest") filtered.sort((a, b) => b.id - a.id);
+  // Infinite scroll sentinel
+  useEffect(() => {
+    if (!sentinelRef.current) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && !loading && page < totalPages) {
+          setPage((p) => p + 1);
+        }
+      },
+      { threshold: 0.1 },
+    );
+    observer.observe(sentinelRef.current);
+    return () => observer.disconnect();
+  }, [loading, page, totalPages]);
 
-    setProducts(filtered);
-  }, [searchParams.toString(), selectedBrandChip, minPrice, maxPrice, selectedRatings.join(","), sortBy]);
+  const handleFilterChange = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (minPrice) params.set("priceMin", minPrice); else params.delete("priceMin");
+    if (maxPrice) params.set("priceMax", maxPrice); else params.delete("priceMax");
+    if (selectedColors.length > 0) params.set("color", JSON.stringify(selectedColors));
+    else params.delete("color");
+    router.replace(`/${locale}/search?${params.toString()}`);
+  };
 
   const handleResetFilters = () => {
-    setSelectedBrandChip("all");
+    setSelectedBrandId("all");
     setMinPrice("");
     setMaxPrice("");
     setSelectedColors([]);
     setSelectedSize("");
     setSelectedRatings([]);
+    router.replace(`/${locale}/search`);
   };
 
+  const handleBrandChipClick = (brandId: string) => {
+    setSelectedBrandId(brandId);
+    const params = new URLSearchParams(searchParams.toString());
+    if (brandId === "all") {
+      params.delete("brand_id");
+    } else {
+      params.set("brand_id", JSON.stringify([brandId]));
+    }
+    router.replace(`/${locale}/search?${params.toString()}`);
+  };
+
+  // Client-side rating filter on top of API results
+  const displayedProducts = selectedRatings.length > 0
+    ? productsList.filter((p) => {
+        const rating = p.product_review?.length
+          ? p.product_review.reduce((s: number, r: any) => s + r.rating, 0) / p.product_review.length
+          : 4.6;
+        return selectedRatings.includes(Math.floor(rating));
+      })
+    : productsList;
+
   const filtersAppliedCount =
-    (selectedBrandChip !== "all" ? 1 : 0) +
+    (selectedBrandId !== "all" ? 1 : 0) +
     (minPrice || maxPrice ? 1 : 0) +
     selectedColors.length +
     (selectedSize ? 1 : 0) +
     selectedRatings.length;
 
-  const chipOptions = [{ id: "all", name: "الكل" }, ...brands.map((b) => ({ id: b.name, name: b.name }))];
+  const chipOptions = [{ id: "all", name: "الكل" }, ...brands.map((b) => ({ id: String(b.id), name: b.name }))];
+
+  const categoryId = searchParams.get("category_id") || "";
 
   return (
-    <div className="min-h-screen bg-[#F0F4FF] stripe-bg" dir="rtl">
+    <div className="min-h-screen bg-[#F0F4FF]" dir="rtl">
       <Navbar />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
 
@@ -221,25 +275,27 @@ const SearchPage = () => {
         <nav className="flex items-center gap-2 text-sm text-gray-500 mb-4">
           <Link href={`/${locale}`} className="hover:text-[#1B3A6B] transition-colors">الرئيسية</Link>
           <ChevronIcon />
-          {activeCategory ? (
+          {categoryId ? (
             <>
               <Link href={`/${locale}/search`} className="hover:text-[#1B3A6B] transition-colors">الفئات</Link>
               <ChevronIcon />
-              <span className="text-gray-800 font-medium">{activeCategory.name}</span>
+              <span className="text-gray-800 font-medium">
+                {searchParams.get("name") || "نتائج البحث"}
+              </span>
             </>
           ) : (
             <span className="text-gray-800 font-medium">الفئات</span>
           )}
         </nav>
 
-        {/* Category chips */}
+        {/* Brand chips */}
         <div className="flex items-center gap-2 overflow-x-auto pb-3 mb-4 scrollbar-hide">
           {chipOptions.map((chip) => (
             <button
               key={chip.id}
-              onClick={() => setSelectedBrandChip(chip.id)}
+              onClick={() => handleBrandChipClick(chip.id)}
               className={`whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium border transition-colors flex-shrink-0 ${
-                selectedBrandChip === chip.id
+                selectedBrandId === chip.id
                   ? "bg-[#1B3A6B] text-white border-[#1B3A6B]"
                   : "bg-white text-gray-600 border-gray-200 hover:border-[#1B3A6B]/40 hover:text-[#1B3A6B]"
               }`}
@@ -266,7 +322,7 @@ const SearchPage = () => {
               setSelectedSize={setSelectedSize}
               selectedRatings={selectedRatings}
               setSelectedRatings={setSelectedRatings}
-              handleFilterChange={() => {}}
+              handleFilterChange={handleFilterChange}
               handleReset={handleResetFilters}
             />
           </div>
@@ -287,7 +343,9 @@ const SearchPage = () => {
                 )}
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-500 font-medium whitespace-nowrap">عرض {productsList.length} منتج</span>
+                <span className="text-sm text-gray-500 font-medium whitespace-nowrap">
+                  عرض {displayedProducts.length} منتج
+                </span>
                 <div className="flex items-center gap-2">
                   <label htmlFor="sort-by" className="text-sm text-gray-500">ترتيب:</label>
                   <select
@@ -305,14 +363,31 @@ const SearchPage = () => {
               </div>
             </div>
 
+            {/* Top loading bar — refresh indicator */}
+            {loading && page === 1 && productsList.length > 0 && (
+              <div className="w-full h-1 bg-gray-100 rounded-full mb-4 overflow-hidden">
+                <div className="h-full bg-[#1B3A6B] rounded-full animate-pulse" style={{ width: "60%" }} />
+              </div>
+            )}
+
             {/* Product Grid */}
-            {productsList.length > 0 ? (
+            {loading && page === 1 && productsList.length === 0 ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {productsList.map((product) => (
-                  <ProductCard key={product.id} product={product} locale={locale} router={router} addItem={addItem} />
+                {Array.from({ length: 6 }).map((_, i) => <SkeletonCard key={i} />)}
+              </div>
+            ) : displayedProducts.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {displayedProducts.map((product: any) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    locale={locale}
+                    router={router}
+                    addItem={addItem}
+                  />
                 ))}
               </div>
-            ) : (
+            ) : !loading ? (
               <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-10 text-center">
                 <div className="w-16 h-16 bg-[#EEF4FF] rounded-full flex items-center justify-center mx-auto mb-4">
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-[#1B3A6B]" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor">
@@ -341,17 +416,50 @@ const SearchPage = () => {
                     </button>
                   </div>
                   <button
-                    onClick={() => {
-                      handleResetFilters();
-                      router.push(`/${locale}/search`);
-                    }}
+                    onClick={() => { handleResetFilters(); router.push(`/${locale}/search`); }}
                     className="bg-[#1B3A6B] text-white py-2.5 px-5 rounded-xl text-sm font-medium hover:bg-[#2563EB] transition-colors whitespace-nowrap"
                   >
                     جميع المنتجات
                   </button>
                 </div>
               </div>
-            )}
+            ) : null}
+
+            {/* Infinite scroll sentinel */}
+            <div ref={sentinelRef} className="mt-10 flex flex-col items-center gap-3 py-6">
+              {loading && page > 1 && (
+                <div className="flex flex-col items-center gap-3">
+                  <div className="flex items-center gap-2">
+                    <span className="w-3 h-3 rounded-full bg-[#1B3A6B] animate-bounce [animation-delay:-0.3s]" />
+                    <span className="w-3 h-3 rounded-full bg-[#1B3A6B] animate-bounce [animation-delay:-0.15s]" />
+                    <span className="w-3 h-3 rounded-full bg-[#1B3A6B] animate-bounce" />
+                  </div>
+                  <p className="text-sm text-gray-400 tracking-wide">جارٍ تحميل المزيد...</p>
+                </div>
+              )}
+
+              {!loading && page < totalPages && productsList.length > 0 && (
+                <div className="flex flex-col items-center gap-2 opacity-40">
+                  <svg className="w-5 h-5 text-gray-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
+                  <p className="text-xs text-gray-400">مرر للمزيد</p>
+                </div>
+              )}
+
+              {!loading && page >= totalPages && productsList.length > 0 && (
+                <div className="flex items-center gap-3 w-full max-w-xs">
+                  <div className="flex-1 h-px bg-gray-200" />
+                  <span className="text-xs text-gray-400 whitespace-nowrap flex items-center gap-1.5">
+                    <svg className="w-3.5 h-3.5 text-[#1B3A6B]" fill="currentColor" viewBox="0 0 24 24">
+                      <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z" />
+                    </svg>
+                    تم تحميل جميع المنتجات ({productsList.length})
+                  </span>
+                  <div className="flex-1 h-px bg-gray-200" />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>
