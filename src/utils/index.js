@@ -289,25 +289,16 @@ const ecommerceAPI = {
         password_confirmation,
       }),
     getProfile: () => apiClient.get("/auth/me"),
-    updateProfile: (userData) => apiClient.put("/auth/profile", userData),
-
-    // verification account
-    verifyAccount: (code, identifier) =>
-      apiClient.post("/auth/verify-account", { code, identifier }),
-    // resend verification account
-    resendVerificationAccount: (identifier) =>
-      apiClient.post("/auth/resend-verify-account", { identifier }),
+    updateProfile: (userData) =>
+      apiClient.post("/auth/update-profile", userData, {
+        headers: { "Content-Type": "multipart/form-data" },
+      }),
+    verifyToken: (phone, token) =>
+      apiClient.post("/auth/verify-token", { phone, token }),
+    verifyCode: (code, identifier) =>
+      apiClient.post("/auth/verify-code", { code, identifier }),
     resendVerificationCode: (identifier) =>
       apiClient.post("/auth/resend-code", { identifier }),
-
-    // verification code
-    verifyCode: (code, identifier) =>
-      apiClient.post("/auth/verify-code", {
-        code,
-        identifier,
-        type: "web",
-        lang: getLocale(),
-      }),
     deleteAccount: () => apiClient.delete("/auth/delete-account"),
   },
 

@@ -1,18 +1,22 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { getLocale } from "@/context/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useLocale } from "next-intl";
 import Link from "next/link";
 import { toast } from "react-toastify";
+import ecommerceAPI from "@/utils";
 
 function OtpInput({
   length = 4,
   onComplete,
   autoFocus = true,
+  disabled = false,
 }: {
   length?: number;
   onComplete?: (code: string) => void;
   autoFocus?: boolean;
+  disabled?: boolean;
 }) {
   const [values, setValues] = useState(Array.from({ length }, () => ""));
   const inputsRef = useRef<(HTMLInputElement | null)[]>([]);
@@ -79,10 +83,11 @@ function OtpInput({
           pattern="[0-9]*"
           maxLength={1}
           value={val}
+          disabled={disabled}
           onChange={(e) => handleChange(idx, e)}
           onKeyDown={(e) => handleKeyDown(idx, e)}
           onPaste={(e) => handlePaste(idx, e)}
-          className="w-14 h-14 text-center text-xl font-bold tracking-widest border-2 rounded-xl outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 focus:border-[#1B3A6B] border-gray-200 bg-white text-gray-800 transition-all"
+          className="w-14 h-14 text-center text-xl font-bold tracking-widest border-2 rounded-xl outline-none focus:ring-2 focus:ring-[#1B3A6B]/30 focus:border-[#1B3A6B] border-gray-200 bg-white text-gray-800 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         />
       ))}
     </div>
@@ -90,15 +95,57 @@ function OtpInput({
 }
 
 const VerificationCodePage = () => {
-  const locale = getLocale();
-  const [verified, setVerified] = useState(false);
+  const locale = useLocale();
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
-  const handleComplete = (code: string) => {
-    if (code === "1234") {
-      setVerified(true);
-      toast.success("تم التحقق بنجاح!");
-    } else {
-      toast.error("رمز التحقق غير صحيح");
+  const flow = searchParams.get("flow") || "";
+  const identifier = searchParams.get("identifier") || "";
+  const phone = searchParams.get("phone") || identifier;
+
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (!flow || (!identifier && !phone)) {
+      router.replace(`/${locale}`);
+    }
+  }, [flow, identifier, phone, locale, router]);
+
+  const handleComplete = async (code: string) => {
+    if (loading) return;
+    setLoading(true);
+    try {
+      if (flow === "registration") {
+        const response = await ecommerceAPI.auth.verifyCode(code, identifier);
+        const data = response.data?.data || response.data;
+        const token = data?.token || data?.access_token;
+        if (token) {
+          ecommerceAPI.setAuthToken(token);
+        }
+        toast.success("تم التحقق بنجاح! مرحباً بك");
+        router.push(`/${locale}`);
+      } else if (flow === "forgot-password") {
+        await ecommerceAPI.auth.verifyToken(phone, code);
+        toast.success("تم التحقق، أدخل كلمة المرور الجديدة");
+        router.push(`/${locale}/create-new-password?phone=${encodeURIComponent(phone)}&token=${encodeURIComponent(code)}`);
+      }
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "رمز التحقق غير صحيح");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleResend = async () => {
+    try {
+      if (flow === "registration") {
+        await ecommerceAPI.auth.resendVerificationCode(identifier);
+      } else if (flow === "forgot-password") {
+        await ecommerceAPI.auth.forgotPassword(phone);
+      }
+      toast.success("تم إعادة إرسال الرمز");
+    } catch (err: any) {
+      toast.error(err?.data?.message || err?.message || "فشل إعادة الإرسال");
     }
   };
 
@@ -120,51 +167,36 @@ const VerificationCodePage = () => {
         </div>
 
         <div className="px-8 py-6 -mt-4 bg-white rounded-t-3xl relative">
-          {verified ? (
-            <div className="text-center py-4">
-              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="w-8 h-8 text-green-500" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="m4.5 12.75 6 6 9-13.5" />
-                </svg>
-              </div>
-              <h3 className="font-bold text-gray-800 mb-2">تم التحقق بنجاح!</h3>
-              <p className="text-gray-500 text-sm mb-6">يمكنك الآن تسجيل الدخول إلى حسابك.</p>
-              <Link
-                href={`/${locale}?signIn=true`}
-                className="block w-full text-center bg-[#1B3A6B] text-white py-3 rounded-xl font-semibold hover:bg-[#2563EB] transition-colors text-sm"
-              >
-                تسجيل الدخول
-              </Link>
-            </div>
-          ) : (
-            <>
-              <h2 className="text-xl font-bold text-gray-800 mb-1">أدخل رمز التحقق</h2>
-              <p className="text-gray-500 text-sm mb-6">
-                أرسلنا رمزاً مكوناً من 4 أرقام إلى هاتفك.
-              </p>
+          <h2 className="text-xl font-bold text-gray-800 mb-1">أدخل رمز التحقق</h2>
+          <p className="text-gray-500 text-sm mb-6">
+            أرسلنا رمزاً مكوناً من 4 أرقام إلى هاتفك.
+          </p>
 
-              <div className="mb-8">
-                <OtpInput length={4} onComplete={handleComplete} />
-              </div>
+          <div className="mb-8">
+            <OtpInput length={4} onComplete={handleComplete} disabled={loading} />
+          </div>
 
-              <div className="text-center">
-                <p className="text-gray-500 text-sm mb-2">لم تستلم الرمز؟</p>
-                <button
-                  className="text-[#2563EB] text-sm font-medium hover:underline"
-                  onClick={() => toast.info("تم إعادة إرسال الرمز")}
-                >
-                  إعادة الإرسال
-                </button>
-              </div>
-
-              <Link
-                href={`/${locale}`}
-                className="mt-6 block text-center text-sm text-gray-400 hover:text-gray-600"
-              >
-                العودة للرئيسية
-              </Link>
-            </>
+          {loading && (
+            <p className="text-center text-sm text-[#1B3A6B] mb-4">جارٍ التحقق...</p>
           )}
+
+          <div className="text-center">
+            <p className="text-gray-500 text-sm mb-2">لم تستلم الرمز؟</p>
+            <button
+              className="text-[#2563EB] text-sm font-medium hover:underline disabled:opacity-50"
+              onClick={handleResend}
+              disabled={loading}
+            >
+              إعادة الإرسال
+            </button>
+          </div>
+
+          <Link
+            href={`/${locale}`}
+            className="mt-6 block text-center text-sm text-gray-400 hover:text-gray-600"
+          >
+            العودة للرئيسية
+          </Link>
         </div>
       </div>
     </div>
