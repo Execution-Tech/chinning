@@ -6,7 +6,9 @@ export const products = [
     category: { id: 1, name: "التلفزيونات" },
     price: 12000,
     sku: "SAM-TV-58-4K",
-    description: "استمتع بوضوح 4K مع تلفزيون سامسونج الذكي 58 بوصة. يتضمن HDR وWi-Fi مدمج والوصول إلى تطبيقات البث المفضلة.",
+
+    description:
+      "استمتع بوضوح 4K مع تلفزيون سامسونج الذكي 58 بوصة. يتضمن HDR وWi-Fi مدمج والوصول إلى تطبيقات البث المفضلة.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Samsung+TV",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Samsung+TV" },
@@ -31,7 +33,8 @@ export const products = [
     category: { id: 2, name: "الهواتف المحمولة" },
     price: 55000,
     sku: "APP-IP15PM-256",
-    description: "أقوى iPhone على الإطلاق. يتميز بشريحة A17 Pro وتصميم التيتانيوم ونظام كاميرا 48 ميغابكسل.",
+    description:
+      "أقوى iPhone على الإطلاق. يتميز بشريحة A17 Pro وتصميم التيتانيوم ونظام كاميرا 48 ميغابكسل.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=iPhone+15+Pro",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=iPhone+15+Pro" },
@@ -44,7 +47,11 @@ export const products = [
       { id: 4, name: "الكاميرا", value: "48MP Triple Camera" },
     ],
     product_review: [
-      { username: "عمر ر.", rating: 5, comment: "أفضل هاتف امتلكته على الإطلاق." },
+      {
+        username: "عمر ر.",
+        rating: 5,
+        comment: "أفضل هاتف امتلكته على الإطلاق.",
+      },
     ],
   },
   {
@@ -54,10 +61,13 @@ export const products = [
     category: { id: 5, name: "الصوتيات" },
     price: 8500,
     sku: "SONY-WH1000XM5",
-    description: "سماعات رأس لاسلكية رائدة في إلغاء الضوضاء مع عمر بطارية 30 ساعة ومكالمات هاتفية واضحة.",
+    description:
+      "سماعات رأس لاسلكية رائدة في إلغاء الضوضاء مع عمر بطارية 30 ساعة ومكالمات هاتفية واضحة.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Sony+Headphones",
     images: [
-      { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Sony+Headphones" },
+      {
+        url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Sony+Headphones",
+      },
     ],
     product_details: [
       { id: 1, name: "عمر البطارية", value: "30 ساعة" },
@@ -73,7 +83,8 @@ export const products = [
     category: { id: 1, name: "التلفزيونات" },
     price: 38000,
     sku: "LG-OLED65C3",
-    description: "سواد مثالي وتباين لا نهائي مع تلفزيون OLED الرائد من LG. يتميز بمعالج α9 AI 4K Gen6 ودولبي فيجن.",
+    description:
+      "سواد مثالي وتباين لا نهائي مع تلفزيون OLED الرائد من LG. يتميز بمعالج α9 AI 4K Gen6 ودولبي فيجن.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=LG+OLED+TV",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=LG+OLED+TV" },
@@ -95,10 +106,13 @@ export const products = [
     category: { id: 2, name: "الهواتف المحمولة" },
     price: 42000,
     sku: "SAM-S24U-512",
-    description: "تجربة Galaxy المثلى مع قلم S Pen مدمج وكاميرا 200 ميغابكسل ومعالج Snapdragon 8 Gen 3.",
+    description:
+      "تجربة Galaxy المثلى مع قلم S Pen مدمج وكاميرا 200 ميغابكسل ومعالج Snapdragon 8 Gen 3.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Galaxy+S24+Ultra",
     images: [
-      { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Galaxy+S24+Ultra" },
+      {
+        url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Galaxy+S24+Ultra",
+      },
     ],
     product_details: [
       { id: 1, name: "السعة التخزينية", value: "512GB" },
@@ -115,7 +129,8 @@ export const products = [
     category: { id: 3, name: "اللابتوبات" },
     price: 65000,
     sku: "APP-MBP14-M3PRO",
-    description: "مدعوم بشريحة M3 Pro مع عمر بطارية يصل إلى 18 ساعة وشاشة Liquid Retina XDR مذهلة.",
+    description:
+      "مدعوم بشريحة M3 Pro مع عمر بطارية يصل إلى 18 ساعة وشاشة Liquid Retina XDR مذهلة.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=MacBook+Pro+14",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=MacBook+Pro+14" },
@@ -135,7 +150,8 @@ export const products = [
     category: { id: 7, name: "الألعاب" },
     price: 18000,
     sku: "SONY-PS5",
-    description: "استمتع بتحميل فائق السرعة بواسطة SSD عالي السرعة وغمر أعمق مع التغذية الراجعة اللمسية.",
+    description:
+      "استمتع بتحميل فائق السرعة بواسطة SSD عالي السرعة وغمر أعمق مع التغذية الراجعة اللمسية.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=PlayStation+5",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=PlayStation+5" },
@@ -156,10 +172,13 @@ export const products = [
     category: { id: 4, name: "الأجهزة اللوحية" },
     price: 12500,
     sku: "XIA-PAD6PRO-256",
-    description: "جهاز لوحي قوي مع Snapdragon 8+ Gen 1 وشاشة 144Hz وشحن سريع 67W للإنتاجية القصوى.",
+    description:
+      "جهاز لوحي قوي مع Snapdragon 8+ Gen 1 وشاشة 144Hz وشحن سريع 67W للإنتاجية القصوى.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Xiaomi+Pad+6+Pro",
     images: [
-      { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Xiaomi+Pad+6+Pro" },
+      {
+        url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Xiaomi+Pad+6+Pro",
+      },
     ],
     product_details: [
       { id: 1, name: "التخزين", value: "256GB" },
@@ -175,7 +194,8 @@ export const products = [
     category: { id: 6, name: "الكاميرات" },
     price: 28000,
     sku: "CAN-EOS-R50",
-    description: "كاميرا بدون مرايا خفيفة الوزن مثالية للمبتدئين والمحترفين. تصوير 4K وتتبع الوجوه بالذكاء الاصطناعي.",
+    description:
+      "كاميرا بدون مرايا خفيفة الوزن مثالية للمبتدئين والمحترفين. تصوير 4K وتتبع الوجوه بالذكاء الاصطناعي.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Canon+EOS+R50",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Canon+EOS+R50" },
@@ -196,7 +216,8 @@ export const products = [
     category: { id: 5, name: "الصوتيات" },
     price: 4200,
     sku: "JBL-CHARGE5",
-    description: "مكبر صوت محمول مقاوم للماء مع بطارية 20 ساعة وإمكانية شحن الأجهزة الأخرى.",
+    description:
+      "مكبر صوت محمول مقاوم للماء مع بطارية 20 ساعة وإمكانية شحن الأجهزة الأخرى.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=JBL+Charge+5",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=JBL+Charge+5" },
@@ -215,10 +236,13 @@ export const products = [
     category: { id: 3, name: "اللابتوبات" },
     price: 22000,
     sku: "HUA-MBOOK-D16",
-    description: "لابتوب بشاشة 16 بوصة Full HD مع معالج Intel Core i5 وبطارية تدوم 8 ساعات.",
+    description:
+      "لابتوب بشاشة 16 بوصة Full HD مع معالج Intel Core i5 وبطارية تدوم 8 ساعات.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Huawei+MateBook",
     images: [
-      { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Huawei+MateBook" },
+      {
+        url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Huawei+MateBook",
+      },
     ],
     product_details: [
       { id: 1, name: "المعالج", value: "Intel Core i5-12450H" },
@@ -237,10 +261,13 @@ export const products = [
     category: { id: 4, name: "الأجهزة اللوحية" },
     price: 9800,
     sku: "SAM-TABS9FE",
-    description: "جهاز لوحي متعدد الاستخدامات مع شاشة 10.9 بوصة وقلم S Pen مدمج وبطارية 8000 mAh.",
+    description:
+      "جهاز لوحي متعدد الاستخدامات مع شاشة 10.9 بوصة وقلم S Pen مدمج وبطارية 8000 mAh.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Galaxy+Tab+S9+FE",
     images: [
-      { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Galaxy+Tab+S9+FE" },
+      {
+        url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Galaxy+Tab+S9+FE",
+      },
     ],
     product_details: [
       { id: 1, name: "الشاشة", value: "10.9 بوصة TFT" },
@@ -256,7 +283,8 @@ export const products = [
     category: { id: 7, name: "الألعاب" },
     price: 12000,
     sku: "XBX-SERIES-S",
-    description: "جهاز الألعاب الأصغر والأذكى من Xbox مع دقة تصل إلى 1440p وتحميل فائق السرعة.",
+    description:
+      "جهاز الألعاب الأصغر والأذكى من Xbox مع دقة تصل إلى 1440p وتحميل فائق السرعة.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Xbox+Series+S",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Xbox+Series+S" },
@@ -277,7 +305,8 @@ export const products = [
     category: { id: 5, name: "الصوتيات" },
     price: 9500,
     sku: "APP-AIRPODS-PRO2",
-    description: "سماعات لاسلكية مع إلغاء نشط للضوضاء وشفافية تكيفية وبطارية تدوم 30 ساعة مع الحافظة.",
+    description:
+      "سماعات لاسلكية مع إلغاء نشط للضوضاء وشفافية تكيفية وبطارية تدوم 30 ساعة مع الحافظة.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=AirPods+Pro+2",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=AirPods+Pro+2" },
@@ -298,10 +327,13 @@ export const products = [
     category: { id: 2, name: "الهواتف المحمولة" },
     price: 7500,
     sku: "XIA-REDMI-N13PRO",
-    description: "هاتف بكاميرا 200 ميغابكسل وشاشة AMOLED 120Hz وشحن سريع 67W بسعر منافس.",
+    description:
+      "هاتف بكاميرا 200 ميغابكسل وشاشة AMOLED 120Hz وشحن سريع 67W بسعر منافس.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=Redmi+Note+13+Pro",
     images: [
-      { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Redmi+Note+13+Pro" },
+      {
+        url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=Redmi+Note+13+Pro",
+      },
     ],
     product_details: [
       { id: 1, name: "الكاميرا", value: "200MP OIS" },
@@ -318,7 +350,8 @@ export const products = [
     category: { id: 8, name: "الإكسسوارات" },
     price: 14500,
     sku: "LG-27GP850",
-    description: "شاشة ألعاب 27 بوصة بدقة QHD ومعدل تحديث 165Hz مع استجابة 1ms للتجربة التنافسية المثلى.",
+    description:
+      "شاشة ألعاب 27 بوصة بدقة QHD ومعدل تحديث 165Hz مع استجابة 1ms للتجربة التنافسية المثلى.",
     image: "https://placehold.co/300x200/EEF4FF/1B3A6B?text=LG+UltraGear",
     images: [
       { url: "https://placehold.co/500x500/EEF4FF/1B3A6B?text=LG+UltraGear" },
@@ -330,7 +363,11 @@ export const products = [
       { id: 4, name: "وقت الاستجابة", value: "1ms GtG" },
     ],
     product_review: [
-      { username: "فهد ر.", rating: 5, comment: "شاشة مذهلة للألعاب التنافسية." },
+      {
+        username: "فهد ر.",
+        rating: 5,
+        comment: "شاشة مذهلة للألعاب التنافسية.",
+      },
     ],
   },
 ];
