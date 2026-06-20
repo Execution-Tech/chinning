@@ -23,7 +23,7 @@ apiClient.interceptors.request.use(
       // This would be handled in individual page functions
     } else {
       // Client-side
-      token = localStorage.getItem("access_token");
+      token = document.cookie.match(/(?:^|; )access_token=([^;]*)/)?.[1];
       const sessionToken = sessionStorage.getItem("session_token");
 
       // Use session token if no access token
@@ -87,8 +87,7 @@ apiClient.interceptors.response.use(
 
     // add token if there is a token
     if (typeof window !== "undefined") {
-      const token = localStorage.getItem("access_token");
-      console.log("token from localstorage", token);
+      const token = document.cookie.match(/(?:^|; )access_token=([^;]*)/)?.[1];
       if (token) {
         originalRequest.headers.Authorization = `Bearer ${token}`;
       }
@@ -363,11 +362,9 @@ const ecommerceAPI = {
   setAuthToken: (token) => {
     if (token) {
       apiClient.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-      localStorage.setItem("access_token", token);
       document.cookie = `access_token=${token}; path=/; max-age=${60 * 60 * 24 * 30}; SameSite=Lax`;
     } else {
       delete apiClient.defaults.headers.common["Authorization"];
-      localStorage.removeItem("access_token");
       document.cookie = "access_token=; path=/; max-age=0";
     }
   },
@@ -382,7 +379,6 @@ const ecommerceAPI = {
 
   clearAuth: () => {
     delete apiClient.defaults.headers.common["Authorization"];
-    localStorage.removeItem("access_token");
     sessionStorage.removeItem("session_token");
     document.cookie = "access_token=; path=/; max-age=0";
   },

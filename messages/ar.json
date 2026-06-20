@@ -202,7 +202,8 @@
     "orderNotFound": "لم يتم العثور على الطلب",
     "failedToLoad": "فشل تحميل تفاصيل الطلب",
     "total": "المجموع",
-    "totalInstallment": "إجمالي التقسيط"
+    "totalInstallment": "إجمالي التقسيط",
+    "deliveryType": "نوع التوصيل"
   },
   "OrderStatus": {
     "received": "تم الاستلام",

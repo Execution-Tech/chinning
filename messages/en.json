@@ -202,7 +202,8 @@
     "orderNotFound": "Order not found",
     "failedToLoad": "Failed to load order details",
     "total": "Total",
-    "totalInstallment": "Total installment"
+    "totalInstallment": "Total installment",
+    "deliveryType": "Delivery Type"
   },
   "OrderStatus": {
     "received": "Received",

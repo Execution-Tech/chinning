@@ -29,7 +29,7 @@ const authReducer = (state, action) => {
 const initialState = {
   isAuthenticated: false,
   user: null,
-  isLoading: false,
+  isLoading: true,
   error: null,
 };
 
@@ -48,21 +48,27 @@ export function AuthProvider({ children }) {
   }, []);
 
   const initAuth = async () => {
-    const token =
-      typeof window !== "undefined"
-        ? localStorage.getItem("access_token")
-        : null;
-    if (!token) return;
+    if (typeof window === "undefined") return;
+    let token = document.cookie.match(/(?:^|; )access_token=([^;]*)/)?.[1];
+    if (!token) {
+      token = localStorage.getItem("access_token");
+      if (token) {
+        ecommerceAPI.setAuthToken(token);
+        localStorage.removeItem("access_token");
+      }
+    }
+    if (!token) {
+      dispatch({ type: "LOGOUT_SUCCESS" });
+      return;
+    }
     ecommerceAPI.setAuthToken(token);
     try {
       const response = await ecommerceAPI.auth.getProfile();
       const user = response.data?.data || response.data?.user || response.data;
       dispatch({ type: "LOGIN_SUCCESS", payload: { user } });
     } catch (err) {
-      if (err?.response?.status === 401) {
-        dispatch({ type: "LOGOUT_SUCCESS" });
-        ecommerceAPI.clearAuth();
-      }
+      dispatch({ type: "LOGOUT_SUCCESS" });
+      ecommerceAPI.clearAuth();
     }
   };
 
@@ -145,6 +151,24 @@ export function AuthProvider({ children }) {
     }
   };
 
+  const deleteAccount = async () => {
+    dispatch({ type: "SET_LOADING", payload: true });
+    try {
+      const response = await ecommerceAPI.auth.deleteAccount();
+      if (response.data?.status) {
+        ecommerceAPI.clearAuth();
+        dispatch({ type: "LOGOUT_SUCCESS" });
+        return { success: true };
+      } else {
+        dispatch({ type: "SET_LOADING", payload: false });
+        return { success: false, error: response.data?.data || "Delete failed" };
+      }
+    } catch (error) {
+      dispatch({ type: "SET_LOADING", payload: false });
+      return { success: false, error: error.message || "Delete failed" };
+    }
+  };
+
   const updateProfile = async (userData) => {
     try {
       const response = await ecommerceAPI.auth.updateProfile(userData);
@@ -167,6 +191,7 @@ export function AuthProvider({ children }) {
     register,
     logout,
     forgotPassword,
+    deleteAccount,
     updateProfile,
     hasRole,
     hasAnyRole,
