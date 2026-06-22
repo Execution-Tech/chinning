@@ -73,7 +73,6 @@ const ProductOverview = () => {
   const { addItem } = useCart();
   const { isAuthenticated } = useAuth();
 
-  // Fetch product from API
   useEffect(() => {
     const fetchProduct = async () => {
       try {
