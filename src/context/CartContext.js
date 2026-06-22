@@ -1,78 +1,105 @@
 "use client";
+import ecommerceAPI from "@/utils";
 import { createContext, useContext, useState, useEffect } from "react";
 import { toast } from "react-toastify";
 
 const CartContext = createContext();
 
-const STORAGE_KEY = "cart_items";
-
-function loadFromStorage() {
-  if (typeof window === "undefined") return [];
-  try {
-    return JSON.parse(localStorage.getItem(STORAGE_KEY) || "[]");
-  } catch {
-    return [];
-  }
-}
-
-function calcTotal(items) {
-  return items.reduce((sum, item) => sum + item.price * item.quantity, 0);
-}
-
 export function CartProvider({ children }) {
   const [items, setItems] = useState([]);
+  const [total, setTotal] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
 
+  const fetchCart = () => {
+    setIsLoading(true);
+    ecommerceAPI.cart
+      .get()
+      .then((response) => {
+        setItems(response.data.data.cart);
+        setTotal(response.data.data.total);
+      })
+      .catch((error) => {
+        console.error("Failed to load cart:", error);
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
+
   useEffect(() => {
-    setItems(loadFromStorage());
+    fetchCart();
   }, []);
 
-  useEffect(() => {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(items));
-  }, [items]);
-
-  const addItem = (product, quantity = 1) => {
-    setItems((prev) => {
-      const existing = prev.find((i) => i.id === product.id);
-      if (existing) {
-        return prev.map((i) =>
-          i.id === product.id ? { ...i, quantity: i.quantity + quantity } : i
-        );
-      }
-      return [...prev, { ...product, quantity }];
+  const addItem = async (id, quantity) => {
+    setIsLoading(true);
+    return await ecommerceAPI.cart.addItem(id, quantity).then(() => {
+      toast.success("تمت إضافة المنتج للسلة");
+      fetchCart();
     });
-    toast.success("Item added to cart");
   };
 
   const updateItemQuantity = (itemId, newQuantity) => {
     if (newQuantity < 1) {
-      toast.error("Quantity must be at least 1");
+      toast.error("الكمية يجب أن تكون 1 على الأقل");
       return;
     }
-    setItems((prev) =>
-      prev.map((i) => (i.id === itemId ? { ...i, quantity: newQuantity } : i))
-    );
-    toast.success("Cart updated");
+    setIsLoading(true);
+    ecommerceAPI.cart
+      .updateItem(itemId, newQuantity)
+      .then(() => {
+        toast.success("تم تحديث الكمية");
+        fetchCart();
+      })
+      .catch(() => {
+        toast.error("فشل في تحديث الكمية");
+        setIsLoading(false);
+      });
   };
 
   const removeItem = (itemId) => {
-    setItems((prev) => prev.filter((i) => i.id !== itemId));
-    toast.success("Item removed from cart");
+    setIsLoading(true);
+    ecommerceAPI.cart
+      .removeItem(itemId)
+      .then(() => {
+        toast.success("تم إزالة المنتج من السلة");
+        fetchCart();
+      })
+      .catch(() => {
+        toast.error("فشل في إزالة المنتج");
+        setIsLoading(false);
+      });
   };
 
-  const clearCart = () => setItems([]);
+  const clearCart = () => {
+    setIsLoading(true);
+    ecommerceAPI.cart
+      .clear()
+      .then(() => {
+        setItems([]);
+        setTotal(0);
+      })
+      .catch(() => {
+        toast.error("فشل في تفريغ السلة");
+      })
+      .finally(() => {
+        setIsLoading(false);
+      });
+  };
 
-  const getTotalItems = () => items.reduce((sum, i) => sum + i.quantity, 0);
+  const getTotalItems = () => {
+    return items.reduce((total, item) => total + item.quantity, 0);
+  };
 
   const value = {
     items,
-    total: calcTotal(items),
+    total,
     isLoading,
     addItem,
     removeItem,
     clearCart,
     getTotalItems,
     updateItemQuantity,
+    fetchCart,
   };
 
   return <CartContext.Provider value={value}>{children}</CartContext.Provider>;

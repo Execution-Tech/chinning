@@ -107,14 +107,19 @@ const ProductOverview = () => {
     return Math.ceil(totalWithRate / plan.installment_duration);
   };
 
-  const handleAddToCart = (e: React.MouseEvent) => {
+  const handleAddToCart = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!isAuthenticated) {
       toast.error("يرجى تسجيل الدخول لإضافة المنتج للسلة");
       return;
     }
-    addItem(product, quantity);
-    setAddedToCart(true);
+    addItem(id, quantity)
+      .then(() => {
+        setAddedToCart(true);
+      })
+      .catch((error: any) => {
+        console.error(error);
+      });
   };
 
   if (loading) return <SkeletonLoader />;

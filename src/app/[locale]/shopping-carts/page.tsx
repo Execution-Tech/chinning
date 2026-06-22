@@ -120,8 +120,8 @@ const ShoppingCart = () => {
                     <li key={item.id} className="p-5 flex items-center gap-4">
                       <div className="flex-shrink-0 w-20 h-20 bg-gray-50 rounded-xl overflow-hidden border border-gray-100">
                         <Image
-                          src={item.image}
-                          alt={item.name}
+                          src={item.product?.image || item.product?.image_url || ""}
+                          alt={item.product?.name || ""}
                           width={80}
                           height={80}
                           className="w-full h-full object-contain p-1"
@@ -130,9 +130,9 @@ const ShoppingCart = () => {
                       </div>
 
                       <div className="flex-1 min-w-0">
-                        <h3 className="font-semibold text-gray-800 text-sm line-clamp-2 mb-2">{item.name}</h3>
+                        <h3 className="font-semibold text-gray-800 text-sm line-clamp-2 mb-2">{item.product?.name}</h3>
                         <span className="font-bold text-[#1B3A6B]">
-                          {(item.price * item.quantity).toLocaleString()} ج.م
+                          {(item.product?.price * item.quantity).toLocaleString()} ج.م
                         </span>
                       </div>
 
