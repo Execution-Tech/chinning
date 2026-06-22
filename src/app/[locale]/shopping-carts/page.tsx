@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Footer from "@/componant/footer";
 import Navbar from "@/componant/nav-bar";
+import CheckoutModal from "@/componant/checkout-modal";
 import Image from "next/image";
 import { useAuth } from "@/hooks/useAuth";
 import { useCart } from "@/context/CartContext";
@@ -39,6 +40,7 @@ const ShoppingCart = () => {
   const locale = getLocale();
   const [shippingMethod, setShippingMethod] = useState(shippingMethods[0].id);
   const [coupon, setCoupon] = useState("");
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
 
   if (!isAuthenticated) {
     return (
@@ -253,18 +255,23 @@ const ShoppingCart = () => {
                   </p>
                 </div>
 
-                <Link
-                  href={`/${locale}/checkout-forms`}
-                  className="mt-5 block w-full text-center bg-[#1B3A6B] text-white py-3 rounded-xl font-semibold hover:bg-[#2563EB] transition-colors text-sm"
+                <button
+                  onClick={() => setIsCheckoutModalOpen(true)}
+                  className="mt-5 block w-full text-center bg-[#1B3A6B] text-white py-3 rounded-xl font-semibold hover:bg-[#2563EB] transition-colors text-sm cursor-pointer"
                 >
                   متابعة الطلب - {grandTotal.toLocaleString()} ج.م
-                </Link>
+                </button>
               </div>
             </div>
           </div>
         )}
       </div>
       <Footer />
+
+      <CheckoutModal
+        isOpen={isCheckoutModalOpen}
+        onClose={() => setIsCheckoutModalOpen(false)}
+      />
     </div>
   );
 };
