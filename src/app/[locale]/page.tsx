@@ -3,7 +3,6 @@ import Navbar from "@/componant/nav-bar";
 import dynamic from "next/dynamic";
 import { getLocale } from "@/context/AuthContext";
 import Link from "next/link";
-import { mostOrderedRow1, mostOrderedRow2 } from "@/data/home";
 
 const CategoriesIcons = dynamic(
   () => import("@/componant/categories-icons/categories-icons"),
@@ -102,8 +101,7 @@ export default function Home() {
         <HeroBanner />
         <CategoriesIcons />
         <FlashDeals />
-        <BestSellersRow title="الأكثر طلباً" items={mostOrderedRow1} />
-        <BestSellersRow title="الأكثر طلباً" items={mostOrderedRow2} />
+        <BestSellersRow />
         <PromoBanner />
         <FeatureStrip />
       </div>
